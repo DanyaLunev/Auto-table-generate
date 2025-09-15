@@ -1,0 +1,51 @@
+Sub InsertNetRows()
+    Dim rowNumber As Long
+    Dim selectedRange As Range
+    Dim cellValues As Variant
+    Dim i As Long, j As Long
+    Dim searchValues() As Variant
+    Dim columnsArray() As Integer
+    Dim targetRow As Long
+    Dim formulaCell As Range
+    
+    If TypeName(Selection) <> "Range" Then
+        MsgBox "Выделите диапазон ячеек"
+        Exit Sub
+    End If
+    
+    Set selectedRange = Selection
+    cellValues = selectedRange.Value
+    
+    ' Правильно инициализируем массивы
+    ReDim searchValues(1 To 2)
+    ReDim columnsArray(1 To 2)
+    
+    columnsArray(1) = 1  ' Столбец A
+    columnsArray(2) = 7  ' Столбец G
+    
+    For i = 1 To UBound(cellValues, 1)
+        ' Заполняем значения для поиска
+        searchValues(1) = cellValues(i, 1)  ' Значение из столбца A
+        searchValues(2) = "WTOTo"           ' Фиксированное значение
+        
+        ' Ищем строку с помощью функции
+        targetRow = FindRowByMultipleValues(searchValues, Range("A1:G240"), columnsArray)
+        
+        If targetRow > 0 Then
+            ' Копируем и вставляем строку
+            selectedRange.Rows(i).Copy
+            Rows(targetRow).Insert Shift:=xlDown
+            
+            ' Обновляем targetRow, так как вставка сместила строки
+            targetRow = targetRow + 1
+            
+            ' Устанавливаем формулу в столбце M
+            Set formulaCell = Range("M" & targetRow)
+            formulaCell.Formula = "=SUM(M" & targetRow - 1 & ":M" & targetRow & ")"
+            
+            Application.CutCopyMode = False
+        Else
+            MsgBox "Не найдена строка для значений: " & searchValues(1) & ", " & searchValues(2)
+        End If
+    Next i
+End Sub
