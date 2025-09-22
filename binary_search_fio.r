@@ -18,3 +18,6 @@ binary_search_fio <- function(data, target_fio) {
       high <- mid - 1
     }
   }
+  
+  return(-1)  # Элемент не найден
+}
