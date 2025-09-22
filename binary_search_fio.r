@@ -1,5 +1,5 @@
-# Функция бинарного поиска по ФИО
-binary_search_fio <- function(data, target_fio) {
+# Самый правильный вариант бинарного поиска
+binary_search_fio_correct <- function(data, target_fio) {
   low <- 1
   high <- nrow(data)
   
@@ -7,17 +7,28 @@ binary_search_fio <- function(data, target_fio) {
     mid <- floor((low + high) / 2)
     current_fio <- data$ФИО[mid]
     
-    # Сравниваем ФИО (регистронезависимо)
-    comparison <- tolower(current_fio) == tolower(target_fio)
+    # Используем встроенное сравнение с учетом локали
+    comparison <- compare(current_fio, target_fio)
     
-    if (comparison) {
-      return(mid)  # Найден элемент, возвращаем индекс
-    } else if (tolower(current_fio) < tolower(target_fio)) {
+    if (comparison == 0) {
+      return(mid)
+    } else if (comparison < 0) {
       low <- mid + 1
     } else {
       high <- mid - 1
     }
   }
   
-  return(-1)  # Элемент не найден
+  return(-1)
+}
+
+# Функция сравнения с учетом русской локали
+compare <- function(str1, str2) {
+  # Создаем временный вектор и используем order
+  temp <- c(str1, str2)
+  ordered <- order(temp)
+  
+  if (ordered[1] == 1 && ordered[2] == 2) return(-1)  # str1 < str2
+  if (ordered[1] == 2 && ordered[2] == 1) return(1)   # str1 > str2
+  return(0)  # равны
 }
