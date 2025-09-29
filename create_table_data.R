@@ -27,3 +27,12 @@ for (i in 1:nrow(payment_table)) {
 }
 write_xlsx(result_table, "PATH")
 print(result_table)
+
+# Преобразуем числовые колонки
+df[] <- lapply(df, function(x) {
+  if(is.numeric(x)) {
+    format(x, decimal.mark = ",", na.encode = FALSE)
+  } else {
+    x
+  }
+})
