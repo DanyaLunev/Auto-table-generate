@@ -1,7 +1,7 @@
-# Самый правильный вариант бинарного поиска
-binary_search_fio_correct <- function(data, target_fio) {
+binary_search_fio_first <- function(data, target_fio) {
   low <- 1
   high <- nrow(data)
+  result <- -1
   
   while (low <= high) {
     mid <- floor((low + high) / 2)
@@ -11,7 +11,9 @@ binary_search_fio_correct <- function(data, target_fio) {
     comparison <- compare(current_fio, target_fio)
     
     if (comparison == 0) {
-      return(mid)
+      # Нашли совпадение, но продолжаем искать в левой части
+      result <- mid
+      high <- mid - 1
     } else if (comparison < 0) {
       low <- mid + 1
     } else {
@@ -19,7 +21,7 @@ binary_search_fio_correct <- function(data, target_fio) {
     }
   }
   
-  return(-1)
+  return(result)
 }
 
 # Функция сравнения с учетом русской локали
