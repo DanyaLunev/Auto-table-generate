@@ -1,4 +1,3 @@
-
 Function BinarySearchFirstLast(searchValues As Variant, searchRange As Range, Optional columnsArray As Variant) As Variant
     Dim result(1) As Long
     result(0) = -1
@@ -11,6 +10,7 @@ Function BinarySearchFirstLast(searchValues As Variant, searchRange As Range, Op
     
     If IsMissing(columnsArray) Then
         ReDim columnsArray(1 To UBound(searchValues))
+        Dim i As Long
         For i = 1 To UBound(searchValues)
             columnsArray(i) = i
         Next i
@@ -19,6 +19,7 @@ Function BinarySearchFirstLast(searchValues As Variant, searchRange As Range, Op
     Dim totalRows As Long
     totalRows = searchRange.Rows.Count
     
+    ' Поиск первого вхождения с условием
     Dim low As Long, high As Long, mid As Long
     low = 1
     high = totalRows
@@ -30,8 +31,14 @@ Function BinarySearchFirstLast(searchValues As Variant, searchRange As Range, Op
         compareResult = CompareRowWithValues(searchRange, mid, searchValues, columnsArray)
         
         If compareResult = 0 Then
-            result(0) = mid
-            high = mid - 1
+            ' Проверяем условие для столбца 12
+            If CheckCondition(searchRange, mid) Then
+                result(0) = mid
+                high = mid - 1
+            Else
+                ' Условие не выполняется, продолжаем поиск вправо
+                low = mid + 1
+            End If
         ElseIf compareResult < 0 Then
             low = mid + 1
         Else
@@ -39,6 +46,7 @@ Function BinarySearchFirstLast(searchValues As Variant, searchRange As Range, Op
         End If
     Wend
     
+    ' Поиск последнего вхождения с условием
     low = 1
     high = totalRows
     
@@ -48,8 +56,14 @@ Function BinarySearchFirstLast(searchValues As Variant, searchRange As Range, Op
         compareResult = CompareRowWithValues(searchRange, mid, searchValues, columnsArray)
         
         If compareResult = 0 Then
-            result(1) = mid
-            low = mid + 1
+            ' Проверяем условие для столбца 12
+            If CheckCondition(searchRange, mid) Then
+                result(1) = mid
+                low = mid + 1
+            Else
+                ' Условие не выполняется, продолжаем поиск влево
+                high = mid - 1
+            End If
         ElseIf compareResult < 0 Then
             low = mid + 1
         Else
@@ -79,4 +93,17 @@ Private Function CompareRowWithValues(rng As Range, rowNum As Long, searchValues
     Next i
     
     CompareRowWithValues = 0
+End Function
+
+' Функция проверки условия: значение в 12 столбце не равно 10
+Private Function CheckCondition(rng As Range, rowNum As Long) As Boolean
+    Dim value12 As Variant
+    value12 = rng.Cells(rowNum, 12).Value
+    
+    ' Проверяем, что значение существует и не равно 10
+    If IsEmpty(value12) Or IsNull(value12) Then
+        CheckCondition = True ' Пустые значения проходят условие
+    Else
+        CheckCondition = (value12 <> 10)
+    End If
 End Function
